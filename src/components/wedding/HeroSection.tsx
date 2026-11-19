@@ -38,14 +38,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
 
       const iw = 941;
       const ih = 1672;
-      const win = [21, 24, 58, 54]; // left, top, width, height %
-
       const sw = sec.clientWidth;
       const sh = sec.clientHeight;
+      const isMobile = sw < 640;
+      const isTablet = sw >= 640 && sw < 1024;
+
+      // Responsive window aperture: give text generous breathing room on mobile
+      const win = isMobile
+        ? [10, 14, 80, 70]
+        : isTablet
+          ? [16, 20, 68, 60]
+          : [21, 24, 58, 54];
 
       const sCover = Math.max(sw / iw, sh / ih);
       const sContain = Math.min(sw / iw, sh / ih);
-      const s = Math.max(sContain, Math.min(sCover, sw / (0.8 * iw), sh / (0.84 * ih)));
+      const s = isMobile
+        ? sCover
+        : Math.max(sContain, Math.min(sCover, sw / (0.8 * iw), sh / (0.84 * ih)));
 
       const w = iw * s;
       const h = ih * s;
@@ -59,19 +68,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
 
       const wl = l + (w * win[0]) / 100;
       const ww = (w * win[2]) / 100;
-      const wt = Math.max(t + (h * win[1]) / 100, 16);
-      const wh = Math.min((h * win[3]) / 100, sh - wt - 16);
+      const wt = Math.max(t + (h * win[1]) / 100, isMobile ? 12 : 16);
+      const wh = Math.min((h * win[3]) / 100, sh - wt - (isMobile ? 12 : 16));
 
-      wEl.style.left = `${wl}px`;
-      wEl.style.top = `${wt}px`;
-      wEl.style.width = `${ww}px`;
-      wEl.style.height = `${wh}px`;
+      wEl.style.left = `${Math.round(wl)}px`;
+      wEl.style.top = `${Math.round(wt)}px`;
+      wEl.style.width = `${Math.round(ww)}px`;
+      wEl.style.height = `${Math.round(wh)}px`;
       wEl.style.setProperty("--ww", `${Math.round(ww)}px`);
 
       fit.style.transform = "none";
       const scrollH = fit.scrollHeight;
       const scaleK = scrollH > wh * 0.96 ? (wh * 0.96) / scrollH : 1;
-      fit.style.transform = scaleK < 1 ? `scale(${scaleK.toFixed(3)})` : "none";
+      // Ensure text is never scaled down into unreadable sizes on mobile
+      const minScale = isMobile ? 0.8 : 0.65;
+      const finalScale = Math.max(minScale, Math.min(1, scaleK));
+      fit.style.transform = finalScale < 0.99 ? `scale(${finalScale.toFixed(3)})` : "none";
     };
 
     handleLayout();

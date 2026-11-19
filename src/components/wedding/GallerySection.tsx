@@ -10,8 +10,18 @@ interface GallerySectionProps {
 export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const photos = data.media.gallery;
   const total = photos.length;
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const prev = () => {
     setCurrentIndex((curr) => (curr > 0 ? curr - 1 : total - 1));
@@ -93,6 +103,37 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
         filter: "drop-shadow(0 20px 35px rgba(0,0,0,0.7))",
         cursor: "pointer",
         pointerEvents: "auto" as const,
+      };
+    }
+
+    // On mobile devices, keep neighbors snug inside the screen and hide distant slides
+    if (isMobile) {
+      if (diff === -1) {
+        return {
+          transform: "translateX(calc(-50% - clamp(80px, 24vw, 120px))) translateZ(-60px) rotateY(18deg) scale(0.82)",
+          zIndex: 15,
+          opacity: 0.75,
+          filter: "brightness(0.7) blur(0.5px)",
+          cursor: "pointer",
+          pointerEvents: "auto" as const,
+        };
+      }
+      if (diff === 1) {
+        return {
+          transform: "translateX(calc(-50% + clamp(80px, 24vw, 120px))) translateZ(-60px) rotateY(-18deg) scale(0.82)",
+          zIndex: 15,
+          opacity: 0.75,
+          filter: "brightness(0.7) blur(0.5px)",
+          cursor: "pointer",
+          pointerEvents: "auto" as const,
+        };
+      }
+      return {
+        transform: "translateX(-50%) scale(0.4)",
+        zIndex: 1,
+        opacity: 0,
+        pointerEvents: "none" as const,
+        display: "none" as const,
       };
     }
 
@@ -183,7 +224,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
 
           {/* 3D Multi-Photo Coverflow Showcase */}
           <div
-            className="flow relative w-full h-[360px] sm:h-[420px] md:h-[460px] my-6"
+            className="flow relative w-full h-[320px] sm:h-[400px] md:h-[460px] my-4 sm:my-6"
             id="flow"
             aria-roledescription="carousel"
             onTouchStart={handleTouchStart}
@@ -201,9 +242,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
                 return (
                   <figure
                     key={`photo-${idx}`}
-                    className={`slide absolute left-1/2 top-0 w-[240px] sm:w-[300px] md:w-[350px] aspect-square transition-all duration-700 ease-out select-none ${
-                      isCurrent ? "act" : ""
-                    }`}
+                        }`}
                     style={style}
                     onClick={() => {
                       if (isCurrent) {
@@ -264,15 +303,15 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
           <div className="thumbnails flex items-center justify-center gap-2 sm:gap-3 mt-4 overflow-x-auto py-2 px-4 max-w-md mx-auto">
             {photos.map((photo, idx) => (
               <button
-                key={`thumb-${idx}`}
+                key={`thumb - ${ idx } `}
                 type="button"
                 onClick={() => setCurrentIndex(idx)}
-                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden border-2 transition-all duration-300 flex-shrink-0 ${
+                className={`w - 10 h - 10 sm: w - 12 sm: h - 12 rounded - md overflow - hidden border - 2 transition - all duration - 300 flex - shrink - 0 ${
                   idx === currentIndex
                     ? "border-gold scale-110 shadow-[0_0_12px_rgba(200,151,62,0.6)]"
                     : "border-gold/30 opacity-60 hover:opacity-100 hover:border-gold/70"
-                }`}
-                aria-label={`Switch to photo ${idx + 1}`}
+                } `}
+                aria-label={`Switch to photo ${ idx + 1 } `}
               >
                 <img
                   src={photo.src}
@@ -287,14 +326,14 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
           <div className="flow-dots flex justify-center gap-2 mt-4" id="flowDots">
             {photos.map((_, idx) => (
               <button
-                key={`dot-${idx}`}
-                className={`transition-all duration-300 rounded-full ${
+                key={`dot - ${ idx } `}
+                className={`transition - all duration - 300 rounded - full ${
                   idx === currentIndex
                     ? "w-6 h-2 bg-gold"
                     : "w-2 h-2 bg-gold/40 hover:bg-gold/70"
-                }`}
+                } `}
                 type="button"
-                aria-label={`Go to photo ${idx + 1}`}
+                aria-label={`Go to photo ${ idx + 1 } `}
                 onClick={() => setCurrentIndex(idx)}
               />
             ))}
@@ -304,41 +343,55 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
 
       {/* Lightbox Modal */}
       {lightboxIndex !== null && (
-        <div className="lightbox-overlay fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm" onClick={closeLightbox}>
+        <div
+          className="lightbox-overlay fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm"
+          onClick={closeLightbox}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={(e) => {
+            if (touchStartX.current === null) return;
+            const diff = touchStartX.current - e.changedTouches[0].clientX;
+            if (diff > 45) {
+              setLightboxIndex((curr) => (curr !== null && curr < total - 1 ? curr + 1 : 0));
+            } else if (diff < -45) {
+              setLightboxIndex((curr) => (curr !== null && curr > 0 ? curr - 1 : total - 1));
+            }
+            touchStartX.current = null;
+          }}
+        >
           <button
-            className="lightbox-close absolute top-4 right-5 text-gold text-3xl font-light hover:text-white transition-colors"
+            className="lightbox-close absolute top-3 right-3 sm:top-5 sm:right-6 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-[#270507]/90 border border-gold/60 text-gold text-2xl hover:text-white transition-colors z-50"
             aria-label="Close photo"
             onClick={closeLightbox}
           >
             &times;
           </button>
           <button
-            className="lightbox-nav lightbox-prev absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border border-gold/50 bg-[#270507]/80 text-gold hover:bg-gold hover:text-[#270507] flex items-center justify-center text-2xl transition-all"
+            className="lightbox-nav lightbox-prev absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gold/50 bg-[#270507]/80 text-gold hover:bg-gold hover:text-[#270507] flex items-center justify-center text-xl sm:text-2xl transition-all z-40"
             aria-label="Previous photo"
             onClick={lightboxPrev}
           >
             &#8249;
           </button>
           <div
-            className="lightbox-content max-w-4xl max-h-[85vh] flex flex-col items-center bg-[#270507] rounded-xl border border-gold/40 shadow-2xl overflow-hidden p-2"
+            className="lightbox-content max-w-4xl max-h-[85vh] flex flex-col items-center bg-[#270507] rounded-xl border border-gold/40 shadow-2xl overflow-hidden p-1.5 sm:p-2"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={photos[lightboxIndex].src}
               alt={photos[lightboxIndex].caption || "Gallery preview"}
-              className="max-h-[72vh] max-w-full object-contain rounded-lg"
+              className="max-h-[68vh] sm:max-h-[72vh] max-w-full object-contain rounded-lg"
             />
             {photos[lightboxIndex].caption && (
-              <p className="text-center py-3 text-sm text-gold-lt font-crimson italic">
+              <p className="text-center py-2 sm:py-3 text-xs sm:text-sm text-gold-lt font-crimson italic px-2">
                 {photos[lightboxIndex].caption}
               </p>
             )}
-            <p className="text-[11px] text-gold/60 font-josefin uppercase tracking-wider pb-1">
+            <p className="text-[10px] sm:text-[11px] text-gold/60 font-josefin uppercase tracking-wider pb-1">
               Photo {lightboxIndex + 1} of {total}
             </p>
           </div>
           <button
-            className="lightbox-nav lightbox-next absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border border-gold/50 bg-[#270507]/80 text-gold hover:bg-gold hover:text-[#270507] flex items-center justify-center text-2xl transition-all"
+            className="lightbox-nav lightbox-next absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gold/50 bg-[#270507]/80 text-gold hover:bg-gold hover:text-[#270507] flex items-center justify-center text-xl sm:text-2xl transition-all z-40"
             aria-label="Next photo"
             onClick={lightboxNext}
           >

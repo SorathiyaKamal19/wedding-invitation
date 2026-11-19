@@ -25,7 +25,7 @@ export const ScrollProgress: React.FC = () => {
 
   return (
     <div className="progress" aria-hidden="true">
-      <i id="progress" style={{ width: `${percent}%` }} />
+      <i id="progress" style={{ width: `${percent}%`, transform: "none" }} />
     </div>
   );
 };

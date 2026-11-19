@@ -4,20 +4,39 @@
 
 @import "../styles/wedding.css";
 
-/* Ensure smooth scrolling and crisp typography rendering */
+/* Ensure smooth scrolling and crisp typography rendering across all viewports */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  max-width: 100vw;
   background-color: #270507;
   color: #fff9ec;
   overflow-x: hidden;
   user-select: auto;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Music button position with notch / safe area support */
+.music {
+  top: max(12px, env(safe-area-inset-top, 12px)) !important;
+  right: max(12px, calc((100vw - var(--col)) / 2 + 12px)) !important;
 }
 
 /* Ensure ALL written text, headings, and ceremony elements are fully visible */
@@ -30,7 +49,7 @@ body {
 }
 
 /* Ensure Hero text, couple names, deity, and date are immediately crystal-clear and visible */
-.hero-in > * {
+.hero-in>* {
   opacity: 1 !important;
   transform: none !important;
   visibility: visible !important;
@@ -54,9 +73,19 @@ body {
   visibility: visible !important;
 }
 
-.gaja-el {
+/* Ensure elephant guardians and the central wedding gate are visible and centered */
+.gaja-el,
+.gaja-gate {
   opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.gaja-el {
   transform: none !important;
+}
+
+.gaja-gate {
+  transform: translateX(-50%) !important;
 }
 
 /* Ensure Event cards in Celebrations are completely visible with rich animations */
@@ -79,9 +108,12 @@ body {
 }
 
 @keyframes pulseNode {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 2px #c8973e, 0 0 0 5px rgba(200, 151, 62, 0.2);
   }
+
   50% {
     box-shadow: 0 0 0 3px #f7de9a, 0 0 0 10px rgba(200, 151, 62, 0.45);
   }
@@ -100,38 +132,50 @@ body {
   visibility: visible !important;
 }
 
-/* 3D Multi-Photo Coverflow styles */
+/* 3D Multi-Photo Coverflow styles - Prevent horizontal overflow on mobile viewports */
 .gallery {
-  overflow: visible !important;
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+  max-width: 100vw !important;
+  width: 100% !important;
 }
+
 .gallery .inner {
   max-width: 1100px !important;
   width: 100% !important;
 }
+
 .flow {
   position: relative !important;
   perspective: 1400px !important;
   overflow: visible !important;
 }
+
 .flow-track {
   transform-style: preserve-3d !important;
   overflow: visible !important;
+  touch-action: pan-y !important;
 }
+
 .slide {
   transform-style: preserve-3d !important;
   transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s ease, filter 0.65s ease !important;
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
     opacity: 0.3;
   }
+
   50% {
     transform: translateY(-22px) rotate(180deg);
     opacity: 0.9;
   }
 }
+
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
@@ -150,18 +194,18 @@ body {
   width: 100% !important;
   overflow: hidden !important;
   background: var(--vel-3);
+  touch-action: pan-y !important;
 }
 
 .pin-window {
   position: absolute !important;
   overflow: hidden !important;
-  -webkit-mask: linear-gradient(
-    180deg,
-    transparent 0,
-    #000 8%,
-    #000 92%,
-    transparent 100%
-  ) !important;
+  touch-action: pan-y !important;
+  -webkit-mask: linear-gradient(180deg,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%) !important;
   mask: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%) !important;
 }
 
@@ -170,9 +214,10 @@ body {
   left: 0 !important;
   right: 0 !important;
   top: 0 !important;
-  padding: calc(var(--ww) * 0.1) calc(var(--ww) * 0.04) !important;
+  padding: calc(var(--ww) * 0.08) calc(var(--ww) * 0.04) !important;
   will-change: transform !important;
   transform-origin: top center;
+  touch-action: pan-y !important;
 }
 
 /* Ensure the main page content is never hidden behind the cover */
@@ -180,6 +225,8 @@ body {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
 }
 
 /* Automatic smooth fadeout for the cover once triggered */
@@ -206,12 +253,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
 }
 
 .lightbox-content {
   position: relative;
-  max-width: 90vw;
+  max-width: 92vw;
   max-height: 85vh;
   border-radius: 8px;
   overflow: hidden;
@@ -220,13 +267,13 @@ body {
 
 .lightbox-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: max(12px, env(safe-area-inset-top, 12px));
+  right: max(12px, env(safe-area-inset-right, 12px));
   z-index: 1000000;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(39, 5, 7, 0.8);
+  background: rgba(39, 5, 7, 0.85);
   border: 1px solid rgba(200, 151, 62, 0.6);
   color: #f7de9a;
   display: flex;
@@ -247,8 +294,8 @@ body {
   top: 50%;
   transform: translateY(-50%);
   z-index: 1000000;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(39, 5, 7, 0.85);
   border: 1px solid rgba(200, 151, 62, 0.6);
@@ -266,11 +313,11 @@ body {
 }
 
 .lightbox-prev {
-  left: 20px;
+  left: 12px;
 }
 
 .lightbox-next {
-  right: 20px;
+  right: 12px;
 }
 
 /* Video modal */
@@ -283,7 +330,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 14px;
 }
 
 .video-modal-wrap {
@@ -296,4 +343,398 @@ body {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE STYLES FOR ALL DEVICES
+   ══════════════════════════════════════════════════════════════ */
+
+/* Mobile Phones (screens under 640px) */
+@media (max-width: 639px) {
+  :root {
+    --col: 100%;
+    --pad: 18px;
+    --gap: 64px;
+  }
+
+  .sec {
+    padding: var(--gap) var(--pad) !important;
+  }
+
+  .h2 {
+    font-size: clamp(24px, 7vw, 36px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .eyebrow {
+    font-size: 10px !important;
+    letter-spacing: 0.26em !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Opening Cover */
+  .cv-mandala {
+    width: min(78vw, 310px, 42vh) !important;
+  }
+
+  .cv-hang {
+    width: clamp(34px, 9vw, 50px) !important;
+  }
+
+  .cv-hang-l {
+    left: 1% !important;
+  }
+
+  .cv-hang-r {
+    right: 1% !important;
+  }
+
+  .cv-plaque {
+    width: min(250px, 78vw) !important;
+    margin: 4vh 0 0 !important;
+  }
+
+  /* Hero Section Typography */
+  .hero-in {
+    padding: 0 6px !important;
+  }
+
+  .invocation {
+    font-size: clamp(12px, 3.6vw, 15px) !important;
+    margin-bottom: 4px !important;
+  }
+
+  .nm {
+    font-size: clamp(30px, 9.5vw, 50px) !important;
+    line-height: 1.05 !important;
+  }
+
+  .amp {
+    font-size: clamp(24px, 7.5vw, 38px) !important;
+    margin: 0 !important;
+  }
+
+  .hero-date {
+    font-size: clamp(10px, 3.2vw, 12px) !important;
+    letter-spacing: 0.16em !important;
+    margin-bottom: 2px !important;
+  }
+
+  .hero-venue {
+    font-size: clamp(14px, 4vw, 17px) !important;
+  }
+
+  /* Countdown Section */
+  .count-lamp {
+    width: 58px !important;
+    margin: calc(var(--gap) * -0.7) auto 20px !important;
+  }
+
+  .scard {
+    padding: 28px 12px 24px !important;
+    border-radius: 16px !important;
+    max-width: 100% !important;
+  }
+
+  .sc-kick {
+    font-size: 10px !important;
+  }
+
+  .sc-date {
+    font-size: clamp(14px, 4.5vw, 18px) !important;
+  }
+
+  .clock {
+    gap: 6px !important;
+    padding: 4px 0 !important;
+  }
+
+  .tile {
+    padding: 10px 2px 8px !important;
+    border-radius: 999px 999px 10px 10px !important;
+  }
+
+  .tile b {
+    font-size: clamp(22px, 7vw, 38px) !important;
+  }
+
+  .tile i {
+    font-size: 7.5px !important;
+    letter-spacing: 0.16em !important;
+    margin-top: 4px !important;
+  }
+
+  .sep {
+    width: 4px !important;
+    height: 4px !important;
+  }
+
+  /* Celebrations Timeline Rail */
+  .rail {
+    margin-top: 28px !important;
+  }
+
+  .ev {
+    padding-left: 36px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .node {
+    left: 4px !important;
+    top: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .rail::before,
+  .rail::after {
+    left: 12px !important;
+  }
+
+  .ev-card {
+    border-radius: 14px !important;
+  }
+
+  .ev-body {
+    padding: 16px 14px 18px !important;
+  }
+
+  .ev-name {
+    font-size: 22px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .ev-when {
+    font-size: 10px !important;
+  }
+
+  .ev-time {
+    font-size: 14px !important;
+    margin: 2px 0 8px !important;
+  }
+
+  .ev-venue {
+    font-size: 14px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .ev-meta {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .ev-meta div {
+    padding: 6px 10px !important;
+  }
+
+  .ev-meta dt {
+    font-size: 8px !important;
+  }
+
+  .ev-meta dd {
+    font-size: 13px !important;
+  }
+
+  .btn {
+    padding: 9px 20px !important;
+    font-size: 9.5px !important;
+  }
+
+  /* Story Section */
+  .moments {
+    margin-top: 28px !important;
+  }
+
+  .mo {
+    gap: 14px !important;
+    margin-bottom: 42px !important;
+  }
+
+  .mo-ph {
+    width: min(220px, 76%) !important;
+    padding: 7px !important;
+  }
+
+  .mo-when {
+    font-size: 9.5px !important;
+  }
+
+  .mo-head {
+    font-size: clamp(22px, 6vw, 28px) !important;
+    margin-bottom: 6px !important;
+  }
+
+  .mo-words {
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Film Section */
+  .theatre {
+    padding: 8px !important;
+    border-radius: 12px !important;
+    margin-top: 20px !important;
+  }
+
+  /* Venue Section */
+  .v-name {
+    font-size: 11px !important;
+  }
+
+  .v-addr {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+
+  .mapcard {
+    padding: 12px 14px !important;
+    gap: 12px !important;
+    border-radius: 12px !important;
+    margin-top: 20px !important;
+  }
+
+  .mc-txt b {
+    font-size: 16px !important;
+  }
+
+  .mc-txt {
+    font-size: 12px !important;
+  }
+
+  .mc-pin {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* RSVP Section */
+  .rsvp-scroll {
+    width: 72px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .rv-lead {
+    font-size: 15px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .rv-choices {
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .rv-ch {
+    padding: 14px 12px !important;
+    border-radius: 12px !important;
+    gap: 8px !important;
+  }
+
+  .rv-ico {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .rv-lbl {
+    font-size: 12px !important;
+  }
+
+  .f-in,
+  .f-ta {
+    font-size: 16px !important;
+    padding: 11px 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .btn-sub {
+    padding: 13px !important;
+    font-size: 10px !important;
+  }
+
+  /* Footer */
+  .foot-line {
+    font-size: 16px !important;
+  }
+
+  .foot-names {
+    font-size: clamp(26px, 8vw, 36px) !important;
+    gap: 8px !important;
+  }
+}
+
+/* Extra-narrow / Small Mobile (screens under 375px) */
+@media (max-width: 374px) {
+  :root {
+    --pad: 14px;
+    --gap: 52px;
+  }
+
+  .nm {
+    font-size: 27px !important;
+  }
+
+  .amp {
+    font-size: 22px !important;
+  }
+
+  .tile b {
+    font-size: 20px !important;
+  }
+
+  .tile i {
+    font-size: 7px !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .ev {
+    padding-left: 30px !important;
+  }
+
+  .rail::before,
+  .rail::after {
+    left: 8px !important;
+  }
+
+  .node {
+    left: 0 !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .ev-name {
+    font-size: 20px !important;
+  }
+}
+
+/* Tablets (screens 640px to 1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  :root {
+    --col: 680px;
+    --pad: 32px;
+    --gap: 88px;
+  }
+
+  .rv-choices {
+    flex-direction: row !important;
+    gap: 16px !important;
+  }
+
+  .rv-ch {
+    flex: 1 !important;
+  }
+
+  .scard {
+    max-width: 440px !important;
+  }
+}
+
+/* Desktop & Large Displays (screens 1024px+) */
+@media (min-width: 1024px) {
+  .rv-choices {
+    flex-direction: row !important;
+    gap: 16px !important;
+  }
+
+  .rv-ch {
+    flex: 1 !important;
+  }
 }

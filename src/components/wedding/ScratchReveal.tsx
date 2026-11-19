@@ -104,19 +104,20 @@ export const ScratchReveal: React.FC<ScratchRevealProps> = ({
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
+    const radius = typeof window !== "undefined" && window.innerWidth < 640 ? 28 : 22;
     ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
 
     // Check cleared percentage periodically
     setClearedPercent((prev) => {
-      const next = prev + 1.2;
-      if (next > 30) {
-        reveal();
-      }
-      return next;
-    });
+        const next = prev + 1.4;
+        if (next > 28) {
+          reveal();
+        }
+        return next;
+      });
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -131,6 +132,18 @@ export const ScratchReveal: React.FC<ScratchRevealProps> = ({
 
   const handlePointerUp = () => {
     isDrawing.current = false;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length > 0) {
+      isDrawing.current = true;
+      scratch(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing.current || e.touches.length === 0) return;
+    scratch(e.touches[0].clientX, e.touches[0].clientY);
   };
 
   return (
@@ -162,10 +175,15 @@ export const ScratchReveal: React.FC<ScratchRevealProps> = ({
           className={`foil ${isRevealed ? "done" : ""}`}
           id="foil"
           aria-hidden="true"
+          style={{ touchAction: "none" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handlePointerUp}
+          onTouchCancel={handlePointerUp}
         />
         <span className="foil-sheen" aria-hidden="true" />
       </div>

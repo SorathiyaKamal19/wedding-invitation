@@ -38,15 +38,23 @@ export const FamilySection: React.FC<FamilySectionProps> = ({ data }) => {
 
       const iw = 941;
       const ih = 1672;
-      // Arch aperture coordinates: left 23%, top 27%, width 54%, height 49%
-      const win = [23, 27, 54, 49];
-
       const sw = stage.clientWidth;
       const sh = stage.clientHeight;
+      const isMobile = sw < 640;
+      const isTablet = sw >= 640 && sw < 1024;
+
+      // Arch aperture coordinates: generous space on mobile for family details
+      const win = isMobile
+        ? [10, 16, 80, 68]
+        : isTablet
+          ? [16, 22, 68, 58]
+          : [23, 27, 54, 49];
 
       const sCover = Math.max(sw / iw, sh / ih);
       const sContain = Math.min(sw / iw, sh / ih);
-      const s = Math.max(sContain, Math.min(sCover, sw / (0.8 * iw), sh / (0.84 * ih)));
+      const s = isMobile
+        ? sCover
+        : Math.max(sContain, Math.min(sCover, sw / (0.8 * iw), sh / (0.84 * ih)));
 
       const w = iw * s;
       const h = ih * s;
@@ -68,15 +76,18 @@ export const FamilySection: React.FC<FamilySectionProps> = ({ data }) => {
       wEl.style.width = `${Math.round(ww)}px`;
       wEl.style.height = `${Math.round(wh)}px`;
       wEl.style.setProperty("--ww", `${Math.round(ww)}px`);
+      wEl.style.touchAction = "pan-y";
+      content.style.touchAction = "pan-y";
 
       // Calculate how much content needs to scroll
       const ch = content.scrollHeight || content.offsetHeight;
-      maxScrollDistance = Math.max(0, ch - wh + 24);
+      maxScrollDistance = Math.max(0, ch - wh + 20);
 
       if (maxScrollDistance > 10) {
         setCanScroll(true);
         // Track height gives enough scroll room for a comfortable reading pace
-        const trackLen = window.innerHeight + maxScrollDistance * 2.2;
+        const scrollMultiplier = isMobile ? 1.35 : 2.0;
+        const trackLen = window.innerHeight + maxScrollDistance * scrollMultiplier;
         sec.style.height = `${Math.round(trackLen)}px`;
       } else {
         setCanScroll(false);
@@ -145,7 +156,7 @@ export const FamilySection: React.FC<FamilySectionProps> = ({ data }) => {
         className="pin-stage sticky top-0 h-screen w-full overflow-hidden"
       >
         <div className="st-veil" />
-        
+
         {/* Palace Arch Artwork with deepams & flickering diya flames */}
         <div ref={artRef} className="st-art absolute">
           <div
@@ -192,132 +203,132 @@ export const FamilySection: React.FC<FamilySectionProps> = ({ data }) => {
             className="pin-content fam absolute left-0 right-0 top-0 text-center will-change-transform"
           >
             {/* Royal Gold Monogram Emblem */}
-            <div className="seal-wrap mx-auto mb-4 w-20 h-20 sm:w-24 sm:h-24 relative">
-              <svg className="seal-ring w-full h-full animate-spin-slow" viewBox="0 0 200 200" aria-hidden="true">
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="95"
-                  fill="none"
-                  stroke="#B8862E"
-                  strokeWidth="1.5"
-                  opacity=".8"
-                />
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="88"
-                  fill="none"
-                  stroke="#C99A45"
-                  strokeWidth="2.5"
-                  strokeDasharray="2 6"
-                  strokeLinecap="round"
-                />
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="78"
-                  fill="none"
-                  stroke="#8A5E17"
-                  strokeWidth="1"
-                  strokeDasharray="4 4"
-                />
-              </svg>
-              <div className="seal absolute inset-1.5 flex items-center justify-center bg-gradient-to-br from-[#FFF8E7] via-[#F5DC96] to-[#D4A346] shadow-md rounded-full border border-gold/50">
-                <span className="font-greatvibes text-2xl sm:text-3xl text-[#5e1210] font-bold tracking-tight select-none">
-                  A &amp; A
-                </span>
-              </div>
-            </div>
+              <div className="seal-wrap mx-auto mb-2 sm:mb-4 w-14 h-14 sm:w-20 md:w-24 sm:h-20 md:h-24 relative">
+                <svg className="seal-ring w-full h-full animate-spin-slow" viewBox="0 0 200 200" aria-hidden="true">
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="95"
+                    fill="none"
+                    stroke="#B8862E"
+                    strokeWidth="1.5"
+                    opacity=".8"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="88"
+                    fill="none"
+                    stroke="#C99A45"
+                    strokeWidth="2.5"
+                    strokeDasharray="2 6"
+                    strokeLinecap="round"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="78"
+                    fill="none"
+                    stroke="#8A5E17"
+                    strokeWidth="1"
+                    strokeDasharray="4 4"
+                  />
+                </svg>
+                    <div className="seal absolute inset-1 sm:inset-1.5 flex items-center justify-center bg-gradient-to-br from-[#FFF8E7] via-[#F5DC96] to-[#D4A346] shadow-md rounded-full border border-gold/50">
+                      <span className="font-greatvibes text-xl sm:text-2xl md:text-3xl text-[#5e1210] font-bold tracking-tight select-none">
+                        A &amp; A
+                      </span>
+                    </div>
+                </div>
 
-            <p className="eyebrow uppercase tracking-widest text-[11px] sm:text-xs text-[#946650] mb-1 font-josefin">
-              An invitation
-            </p>
-            <h2 className="h2 font-playfair text-2xl sm:text-3xl md:text-4xl text-[#5e1210] font-semibold mb-2 leading-tight">
-              With the blessings
-              <br />
-              of our families
-            </h2>
-            <p className="prose text-xs sm:text-sm text-[#6e3024] max-w-xs sm:max-w-md mx-auto mb-6 leading-relaxed font-crimson">
-              We invite you to join us as we take our vows, and to share in the joy
-              of the days that follow.
-            </p>
+                  <p className="eyebrow uppercase tracking-widest text-[10px] sm:text-xs text-[#946650] mb-1 font-josefin">
+                    An invitation
+                  </p>
+                    <h2 className="h2 font-playfair text-xl sm:text-3xl md:text-4xl text-[#5e1210] font-semibold mb-1 sm:mb-2 leading-tight">
+                      With the blessings
+                      <br />
+                      of our families
+                    </h2>
+                      <p className="prose text-xs sm:text-sm text-[#6e3024] max-w-xs sm:max-w-md mx-auto mb-4 sm:mb-6 leading-relaxed font-crimson px-2">
+                        We invite you to join us as we take our vows, and to share in the joy
+                        of the days that follow.
+                      </p>
 
-            {/* Groom and Bride Union Section */}
-            <div className="union my-4 flex flex-col items-center justify-center gap-3 max-w-sm mx-auto">
-              {/* Groom Side */}
-              <div className="side side-groom text-center w-full">
-                <p className="side-name font-playfair font-semibold text-lg sm:text-2xl text-[#5e1210] leading-tight">
-                  {groom.full}
-                </p>
-                <p className="side-role uppercase tracking-widest text-[10px] text-[#9a6a1c] font-semibold my-1 font-josefin">
-                  Son of
-                </p>
-                <p className="side-parents text-sm sm:text-base text-[#6e3024] font-crimson leading-snug">
-                  {groom.parents.father.prefix} {groom.parents.father.name}
-                  <br />
-                  &amp; {groom.parents.mother.prefix} {groom.parents.mother.name}
-                </p>
-              </div>
+                      {/* Groom and Bride Union Section */}
+                        <div className="union my-2 sm:my-4 flex flex-col items-center justify-center gap-2 sm:gap-3 max-w-sm mx-auto">
+                          {/* Groom Side */}
+                          <div className="side side-groom text-center w-full">
+                              <p className="side-name font-playfair font-semibold text-base sm:text-xl md:text-2xl text-[#5e1210] leading-tight">
+                                {groom.full}
+                              </p>
+                                <p className="side-role uppercase tracking-widest text-[9px] sm:text-[10px] text-[#9a6a1c] font-semibold my-0.5 sm:my-1 font-josefin">
+                                  Son of
+                                </p>
+                                  <p className="side-parents text-xs sm:text-base text-[#6e3024] font-crimson leading-snug">
+                                    {groom.parents.father.prefix} {groom.parents.father.name}
+                                    <br />
+                                    &amp; {groom.parents.mother.prefix} {groom.parents.mother.name}
+                                  </p>
+                                </div>
 
-              {/* Royal Weds Flourish */}
-              <div className="weds flex items-center justify-center gap-3 my-2 w-full max-w-[220px]">
-                <span className="flex-1 h-px bg-gradient-to-r from-transparent to-[#b8862e]" />
-                <em className="font-greatvibes text-3xl sm:text-4xl text-[#b8862e] px-2 not-italic leading-none">
-                  weds
-                </em>
-                <span className="flex-1 h-px bg-gradient-to-l from-transparent to-[#b8862e]" />
-              </div>
+                                {/* Royal Weds Flourish */}
+                                  <div className="weds flex items-center justify-center gap-2 sm:gap-3 my-1 sm:my-2 w-full max-w-[200px] sm:max-w-[220px]">
+                                    <span className="flex-1 h-px bg-gradient-to-r from-transparent to-[#b8862e]" />
+                                      <em className="font-greatvibes text-2xl sm:text-4xl text-[#b8862e] px-2 not-italic leading-none">
+                                        weds
+                                      </em>
+                                      <span className="flex-1 h-px bg-gradient-to-l from-transparent to-[#b8862e]" />
+                                  </div>
 
-              {/* Bride Side */}
-              <div className="side side-bride text-center w-full">
-                <p className="side-name font-playfair font-semibold text-lg sm:text-2xl text-[#5e1210] leading-tight">
-                  {bride.full}
-                </p>
-                <p className="side-role uppercase tracking-widest text-[10px] text-[#9a6a1c] font-semibold my-1 font-josefin">
-                  Daughter of
-                </p>
-                <p className="side-parents text-sm sm:text-base text-[#6e3024] font-crimson leading-snug">
-                  {bride.parents.father.prefix} {bride.parents.father.name}
-                  <br />
-                  &amp; {bride.parents.mother.prefix} {bride.parents.mother.name}
-                </p>
-              </div>
-            </div>
+                                  {/* Bride Side */}
+                                  <div className="side side-bride text-center w-full">
+                                      <p className="side-name font-playfair font-semibold text-base sm:text-xl md:text-2xl text-[#5e1210] leading-tight">
+                                        {bride.full}
+                                      </p>
+                                        <p className="side-role uppercase tracking-widest text-[9px] sm:text-[10px] text-[#9a6a1c] font-semibold my-0.5 sm:my-1 font-josefin">
+                                          Daughter of
+                                        </p>
+                                          <p className="side-parents text-xs sm:text-base text-[#6e3024] font-crimson leading-snug">
+                                            {bride.parents.father.prefix} {bride.parents.father.name}
+                                            <br />
+                                            &amp; {bride.parents.mother.prefix} {bride.parents.mother.name}
+                                          </p>
+                                        </div>
+                                      </div>
 
-            {/* Hosted By Information */}
-            <div className="hosted mt-6 pt-4 border-t border-gold/30 max-w-xs sm:max-w-sm mx-auto pb-8">
-              <span className="block w-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-2" />
-              <p className="hosted-label uppercase tracking-widest text-[10px] sm:text-[11px] text-[#7a1c16] font-semibold mb-1 font-josefin">
-                Hosted by
-              </p>
-              <p className="hosted-names text-xs sm:text-sm text-[#6e3024] font-crimson leading-relaxed">
-                Shri Mohan &amp; Smt Kamla Malhotra
-                <br />
-                Shri Suresh &amp; Smt Lata Sharma
-              </p>
-              <img
-                src="/assets/el/lotus_div.webp"
-                alt=""
-                className="w-16 mx-auto mt-4 opacity-70"
-                aria-hidden="true"
-              />
-            </div>
-          </div>
+                                      {/* Hosted By Information */}
+                                          <div className="hosted mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gold/30 max-w-xs sm:max-w-sm mx-auto pb-6 sm:pb-8">
+                                            <span className="block w-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-1.5 sm:mb-2" />
+                                            <p className="hosted-label uppercase tracking-widest text-[9px] sm:text-[11px] text-[#7a1c16] font-semibold mb-0.5 sm:mb-1 font-josefin">
+                                              Hosted by
+                                            </p>
+                                            <p className="hosted-names text-xs sm:text-sm text-[#6e3024] font-crimson leading-relaxed">
+                                              Shri Mohan &amp; Smt Kamla Malhotra
+                                              <br />
+                                              Shri Suresh &amp; Smt Lata Sharma
+                                            </p>
+                                            <img
+                                              src="/assets/el/lotus_div.webp"
+                                              alt=""
+                                              className="w-12 sm:w-16 mx-auto mt-3 sm:mt-4 opacity-70"
+                                              aria-hidden="true"
+                                            />
+                                          </div>
+                                      </div>
 
-          {/* Floating 'Scroll down' prompt inside the arch window */}
-          {canScroll && scrollProgress < 0.65 && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center opacity-80 animate-bounce transition-opacity duration-300">
-              <span className="text-[9px] uppercase tracking-widest font-josefin text-gold font-semibold drop-shadow">
-                Scroll to read
-              </span>
-              <svg className="w-3.5 h-3.5 text-gold drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+                                      {/* Floating 'Scroll down' prompt inside the arch window */}
+                                      {canScroll && scrollProgress < 0.65 && (
+                                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center opacity-80 animate-bounce transition-opacity duration-300">
+                                          <span className="text-[9px] uppercase tracking-widest font-josefin text-gold font-semibold drop-shadow">
+                                            Scroll to read
+                                          </span>
+                                          <svg className="w-3.5 h-3.5 text-gold drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                                          </svg>
+                                        </div>
+                                      )}
+                                  </div>
+                                </div>
+                              </section>
+                              );
 };
