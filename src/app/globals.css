@@ -1,0 +1,299 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "../styles/wedding.css";
+
+/* Ensure smooth scrolling and crisp typography rendering */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #270507;
+  color: #fff9ec;
+  overflow-x: hidden;
+  user-select: auto;
+}
+
+/* Ensure ALL written text, headings, and ceremony elements are fully visible */
+.reveal,
+.reveal.in {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  visibility: visible !important;
+}
+
+/* Ensure Hero text, couple names, deity, and date are immediately crystal-clear and visible */
+.hero-in > * {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+.hero .st-img {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.nm .ch,
+.nm {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  display: inline-block !important;
+}
+
+.cue {
+  opacity: 0.9 !important;
+  visibility: visible !important;
+}
+
+.gaja-el {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Ensure Event cards in Celebrations are completely visible with rich animations */
+.ev-card,
+.ev.in .ev-card,
+.ev .ev-card {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ev-card:hover {
+  transform: translateY(-8px) scale(1.015) !important;
+  box-shadow: 0 20px 45px rgba(200, 151, 62, 0.32), 0 0 0 2px rgba(200, 151, 62, 0.6) !important;
+}
+
+.ev .node {
+  animation: pulseNode 2.6s ease-in-out infinite;
+}
+
+@keyframes pulseNode {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #c8973e, 0 0 0 5px rgba(200, 151, 62, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 3px #f7de9a, 0 0 0 10px rgba(200, 151, 62, 0.45);
+  }
+}
+
+/* Ensure Story moments (photos and text) are completely visible */
+.mo,
+.mo.in,
+.mo-ph,
+.mo.in .mo-ph,
+.mo-tx,
+.mo.in .mo-tx {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  visibility: visible !important;
+}
+
+/* 3D Multi-Photo Coverflow styles */
+.gallery {
+  overflow: visible !important;
+}
+.gallery .inner {
+  max-width: 1100px !important;
+  width: 100% !important;
+}
+.flow {
+  position: relative !important;
+  perspective: 1400px !important;
+  overflow: visible !important;
+}
+.flow-track {
+  transform-style: preserve-3d !important;
+  overflow: visible !important;
+}
+.slide {
+  transform-style: preserve-3d !important;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s ease, filter 0.65s ease !important;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-22px) rotate(180deg);
+    opacity: 0.9;
+  }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Pinned Arch Scroll Section (Family Blessings) */
+.pin {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.pin-stage {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  height: 100svh !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  background: var(--vel-3);
+}
+
+.pin-window {
+  position: absolute !important;
+  overflow: hidden !important;
+  -webkit-mask: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  ) !important;
+  mask: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%) !important;
+}
+
+.pin-content.fam {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  padding: calc(var(--ww) * 0.1) calc(var(--ww) * 0.04) !important;
+  will-change: transform !important;
+  transform-origin: top center;
+}
+
+/* Ensure the main page content is never hidden behind the cover */
+#page {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Automatic smooth fadeout for the cover once triggered */
+#cover.go {
+  pointer-events: none !important;
+  animation: coverFadeOut 0.5s ease 1.1s forwards !important;
+}
+
+@keyframes coverFadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* Modal lightbox styles */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(14, 5, 6, 0.94);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(200, 151, 62, 0.5);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1000000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(39, 5, 7, 0.8);
+  border: 1px solid rgba(200, 151, 62, 0.6);
+  color: #f7de9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: rgba(200, 151, 62, 0.9);
+  color: #270507;
+  transform: scale(1.05);
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000000;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(39, 5, 7, 0.85);
+  border: 1px solid rgba(200, 151, 62, 0.6);
+  color: #f7de9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lightbox-nav:hover {
+  background: rgba(200, 151, 62, 0.9);
+  color: #270507;
+}
+
+.lightbox-prev {
+  left: 20px;
+}
+
+.lightbox-next {
+  right: 20px;
+}
+
+/* Video modal */
+.video-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(10, 4, 5, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.video-modal-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid rgba(200, 151, 62, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9);
+}
