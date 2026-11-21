@@ -242,7 +242,9 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ data }) => {
                 return (
                   <figure
                     key={`photo-${idx}`}
-                        }`}
+                    className={`slide absolute left-1/2 top-0 w-[210px] sm:w-[290px] md:w-[350px] aspect-square transition-all duration-700 ease-out select-none ${
+                      isCurrent ? "act" : ""
+                    }`}
                     style={style}
                     onClick={() => {
                       if (isCurrent) {
