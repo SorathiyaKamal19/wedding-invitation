@@ -13,7 +13,7 @@ interface Particle {
   phase: number;
   rotation: number;
   vRot: number;
-  color: string;
+  spriteIndex: number;
   alpha: number;
   isMote?: boolean;
 }
@@ -24,7 +24,7 @@ export const SkyParticles: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animId: number;
@@ -51,79 +51,67 @@ export const SkyParticles: React.FC = () => {
       "#D4A373", // gold-blush
     ];
 
+    // Pre-render petal sprites into offscreen canvases (HUGE GPU performance boost)
+    const petalSprites: HTMLCanvasElement[] = petalsColors.map((color) => {
+      const off = document.createElement("canvas");
+      off.width = 48;
+      off.height = 48;
+      const oc = off.getContext("2d");
+      if (oc) {
+        oc.translate(24, 24);
+        oc.fillStyle = color;
+        oc.beginPath();
+        oc.moveTo(0, -20);
+        oc.bezierCurveTo(18, -10, 16, 16, 0, 20);
+        oc.bezierCurveTo(-16, 16, -18, -10, 0, -20);
+        oc.fill();
+      }
+      return off;
+    });
+
+    // Pre-render gold mote sprite
+    const moteSprite = document.createElement("canvas");
+    moteSprite.width = 32;
+    moteSprite.height = 32;
+    const mc = moteSprite.getContext("2d");
+    if (mc) {
+      const grad = mc.createRadialGradient(16, 16, 0, 16, 16, 15);
+      grad.addColorStop(0, "rgba(255, 243, 209, 1)");
+      grad.addColorStop(0.4, "rgba(247, 222, 154, 0.8)");
+      grad.addColorStop(1, "rgba(200, 151, 62, 0)");
+      mc.fillStyle = grad;
+      mc.beginPath();
+      mc.arc(16, 16, 15, 0, Math.PI * 2);
+      mc.fill();
+    }
+
     const particles: Particle[] = [];
-    const maxParticles = width < 640 ? 35 : 65;
+    const maxParticles = width < 640 ? 25 : 50;
 
     // Initialize particles
     for (let i = 0; i < maxParticles; i++) {
-      const isMote = Math.random() < 0.4;
+      const isMote = Math.random() < 0.35;
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * (isMote ? 0.3 : 0.6),
-        vy: isMote ? -(Math.random() * 0.4 + 0.15) : Math.random() * 0.6 + 0.35,
-        size: isMote ? Math.random() * 2.2 + 1 : Math.random() * 9 + 6,
+        vx: (Math.random() - 0.5) * (isMote ? 0.25 : 0.45),
+        vy: isMote ? -(Math.random() * 0.35 + 0.12) : Math.random() * 0.55 + 0.3,
+        size: isMote ? Math.random() * 3 + 2 : Math.random() * 8 + 6,
         swaySpeed: Math.random() * 1.2 + 0.5,
-        swayAmplitude: Math.random() * 0.5 + 0.2,
+        swayAmplitude: Math.random() * 0.45 + 0.2,
         phase: Math.random() * Math.PI * 2,
         rotation: Math.random() * Math.PI * 2,
-        vRot: (Math.random() - 0.5) * 0.03,
-        color: isMote
-          ? "#F7DE9A"
-          : petalsColors[Math.floor(Math.random() * petalsColors.length)],
-        alpha: Math.random() * 0.5 + 0.3,
+        vRot: (Math.random() - 0.5) * 0.025,
+        spriteIndex: Math.floor(Math.random() * petalsColors.length),
+        alpha: Math.random() * 0.45 + 0.35,
         isMote,
       });
     }
 
     let lastTime = performance.now();
 
-    const drawPetal = (
-      c: CanvasRenderingContext2D,
-      x: number,
-      y: number,
-      size: number,
-      rotation: number,
-      color: string,
-      alpha: number
-    ) => {
-      c.save();
-      c.translate(x, y);
-      c.rotate(rotation);
-      c.globalAlpha = alpha;
-      c.fillStyle = color;
-
-      c.beginPath();
-      c.moveTo(0, -size);
-      c.bezierCurveTo(size * 0.9, -size * 0.5, size * 0.8, size * 0.8, 0, size);
-      c.bezierCurveTo(-size * 0.8, size * 0.8, -size * 0.9, -size * 0.5, 0, -size);
-      c.fill();
-
-      c.restore();
-    };
-
-    const drawMote = (
-      c: CanvasRenderingContext2D,
-      x: number,
-      y: number,
-      size: number,
-      alpha: number
-    ) => {
-      c.save();
-      c.globalAlpha = alpha;
-      const grad = c.createRadialGradient(x, y, 0, x, y, size * 2);
-      grad.addColorStop(0, "#FFF3D1");
-      grad.addColorStop(0.4, "#F7DE9A");
-      grad.addColorStop(1, "rgba(200, 151, 62, 0)");
-      c.fillStyle = grad;
-      c.beginPath();
-      c.arc(x, y, size * 2, 0, Math.PI * 2);
-      c.fill();
-      c.restore();
-    };
-
     const loop = (now: number) => {
-      const dt = Math.min((now - lastTime) / 16.67, 3);
+      const dt = Math.min((now - lastTime) / 16.67, 2.5);
       lastTime = now;
       const t = now / 1000;
 
@@ -135,23 +123,30 @@ export const SkyParticles: React.FC = () => {
         p.x += (p.vx + Math.sin(t * p.swaySpeed + p.phase) * p.swayAmplitude) * dt;
         p.y += p.vy * dt;
 
-        // Wrap around
+        // Wrap around borders
         if (p.isMote) {
-          if (p.y < -10) {
-            p.y = height + 10;
+          if (p.y < -15) {
+            p.y = height + 15;
             p.x = Math.random() * width;
           }
-          drawMote(ctx, p.x, p.y, p.size, p.alpha);
+          ctx.globalAlpha = p.alpha;
+          ctx.drawImage(moteSprite, p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
         } else {
-          if (p.y > height + 20) {
-            p.y = -20;
+          if (p.y > height + 25) {
+            p.y = -25;
             p.x = Math.random() * width;
           }
-          drawPetal(ctx, p.x, p.y, p.size, p.rotation, p.color, p.alpha);
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.globalAlpha = p.alpha;
+          const sprite = petalSprites[p.spriteIndex];
+          ctx.drawImage(sprite, -p.size, -p.size, p.size * 2, p.size * 2);
+          ctx.restore();
         }
 
-        if (p.x < -20) p.x = width + 20;
-        if (p.x > width + 20) p.x = -20;
+        if (p.x < -25) p.x = width + 25;
+        if (p.x > width + 25) p.x = -25;
       }
 
       animId = requestAnimationFrame(loop);
@@ -167,4 +162,3 @@ export const SkyParticles: React.FC = () => {
 
   return <canvas ref={canvasRef} id="sky" aria-hidden="true" />;
 };
-

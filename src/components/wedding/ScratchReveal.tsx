@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import confetti from "canvas-confetti";
+import { triggerConfetti } from "@/lib/confetti";
 
 interface ScratchRevealProps {
   days: number;
@@ -24,16 +24,12 @@ export const ScratchReveal: React.FC<ScratchRevealProps> = ({
     if (isRevealed) return;
     setIsRevealed(true);
 
-    try {
-      confetti({
-        particleCount: 50,
-        spread: 70,
-        origin: { y: 0.65 },
-        colors: ["#F7DE9A", "#C8973E", "#F2D183", "#8A5E17"],
-      });
-    } catch {
-      // fallback
-    }
+    triggerConfetti({
+      particleCount: 50,
+      spread: 70,
+      origin: { y: 0.65 },
+      colors: ["#F7DE9A", "#C8973E", "#F2D183", "#8A5E17"],
+    });
   }, [isRevealed]);
 
   // Paint the golden foil

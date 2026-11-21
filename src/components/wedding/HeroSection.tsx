@@ -153,7 +153,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
           </p>
           <h1 className="names my-1">
             <span
-              className="nm nm-groom font-playfair"
+              className="nm nm-groom lit font-playfair"
               data-name={data.couple.groom.first}
             >
               {data.couple.groom.first}
@@ -162,7 +162,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
               &amp;
             </span>
             <span
-              className="nm nm-bride font-playfair"
+              className="nm nm-bride lit font-playfair"
               data-name={data.couple.bride.first}
             >
               {data.couple.bride.first}

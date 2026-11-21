@@ -38,6 +38,12 @@ export interface StoryMoment {
 export interface ContactPerson {
   name: string;
   phone: string;
+  relation?: string;
+}
+
+export interface VenueHighlight {
+  label: string;
+  desc: string;
 }
 
 export interface WeddingData {
@@ -71,6 +77,7 @@ export interface WeddingData {
     address: string;
     mapsUrl: string;
     mandapImage: string;
+    highlights?: VenueHighlight[];
   };
   events: WeddingEvent[];
   story: StoryMoment[];
@@ -89,6 +96,7 @@ export interface WeddingData {
     instagram: string;
     rsvp: {
       mode: string;
+      whatsappNumber?: string;
       contacts: ContactPerson[];
     };
   };
@@ -151,6 +159,11 @@ export const weddingData: WeddingData = {
     address: "Dwarka City Centre, Plot 4, Sector 13\nDwarka, New Delhi 110075",
     mapsUrl: "https://www.google.com/maps/dir/?api=1&destination=Radisson%20Blu%20Hotel%20New%20Delhi%20Dwarka&destination_place_id=ChIJNVRyWcgaDTkRj3BVa6ccnAo",
     mandapImage: "/assets/el/mandap.webp",
+    highlights: [
+      { label: "Metro", desc: "Dwarka Sector 13 Station (200m)" },
+      { label: "Airport", desc: "IGI Airport Terminal 3 (20 mins)" },
+      { label: "Parking", desc: "Complimentary Valet Parking" },
+    ],
   },
   events: [
     {
@@ -293,13 +306,16 @@ export const weddingData: WeddingData = {
     instagram: "aarav.ananya",
     rsvp: {
       mode: "phone",
+      whatsappNumber: "+919810012345",
       contacts: [
         {
           name: "Rohan Malhotra",
+          relation: "Groom's Brother",
           phone: "+919810012345",
         },
         {
           name: "Isha Sharma",
+          relation: "Bride's Sister",
           phone: "+919810034567",
         },
       ],

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import confetti from "canvas-confetti";
+import { triggerConfetti } from "@/lib/confetti";
 
 interface OpeningCoverProps {
   onOpen: () => void;
@@ -35,21 +35,17 @@ export const OpeningCover: React.FC<OpeningCoverProps> = ({ onOpen, isOpen }) =>
     setStage("opening");
 
     // Particle burst
-    try {
-      const count = window.innerWidth < 640 ? 60 : 120;
-      confetti({
-        particleCount: count,
-        spread: 100,
-        origin: { y: 0.5 },
-        colors: ["#F7DE9A", "#C8973E", "#F2D183", "#8A5E17", "#FFF1C4", "#B8862E"],
-        shapes: ["circle"],
-        ticks: 200,
-        gravity: 0.8,
-        scalar: 1.2,
-      });
-    } catch {
-      // fallback
-    }
+    const count = typeof window !== "undefined" && window.innerWidth < 640 ? 60 : 120;
+    triggerConfetti({
+      particleCount: count,
+      spread: 100,
+      origin: { y: 0.5 },
+      colors: ["#F7DE9A", "#C8973E", "#F2D183", "#8A5E17", "#FFF1C4", "#B8862E"],
+      shapes: ["circle"],
+      ticks: 200,
+      gravity: 0.8,
+      scalar: 1.2,
+    });
 
     onOpen();
 

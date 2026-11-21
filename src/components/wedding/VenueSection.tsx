@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { WeddingData } from "@/data/weddingData";
 
 interface VenueSectionProps {
@@ -6,6 +8,17 @@ interface VenueSectionProps {
 }
 
 export const VenueSection: React.FC<VenueSectionProps> = ({ data }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyAddress = () => {
+    const fullText = `${data.venue.name}, ${data.venue.address.replace(/\n/g, ", ")}`;
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(fullText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
   return (
     <section className="sec parch venue" id="venue">
       <div className="strand strand-l" aria-hidden="true">
@@ -48,11 +61,36 @@ export const VenueSection: React.FC<VenueSectionProps> = ({ data }) => {
         </div>
 
         <p className="v-name reveal font-playfair">{data.venue.name}</p>
-        <p className="v-addr reveal">
-          Dwarka City Centre, Plot 4, Sector 13
-          <br />
-          Dwarka, New Delhi 110075
+        <p className="v-addr reveal whitespace-pre-line">
+          {data.venue.address}
         </p>
+
+        {/* Copy Address & Directions Actions */}
+        <div className="flex flex-wrap items-center justify-center gap-3 reveal mt-3 mb-6">
+          <button
+            type="button"
+            onClick={handleCopyAddress}
+            className="btn btn-sm btn-outline"
+            style={{ padding: "8px 18px" }}
+          >
+            <span>{copied ? "✓ Address Copied!" : "📋 Copy Address"}</span>
+          </button>
+        </div>
+
+        {/* Venue Highlights (Metro, Airport, Valet) */}
+        {data.venue.highlights && data.venue.highlights.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-3 reveal mb-6 max-w-xl mx-auto">
+            {data.venue.highlights.map((item, idx) => (
+              <div
+                key={`hl-${idx}`}
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-900/20 bg-amber-50/70 text-xs text-amber-950 font-serif"
+              >
+                <span className="font-semibold text-amber-900">{item.label}:</span>
+                <span className="opacity-85">{item.desc}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         <a
           className="mapcard reveal"

@@ -1,31 +1,44 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 export const ScrollProgress: React.FC = () => {
-  const [percent, setPercent] = useState(0);
+  const barRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let rafId: number | null = null;
+
+    const update = () => {
+      const bar = barRef.current;
+      if (!bar) return;
       const scrollY = window.scrollY;
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (totalHeight > 0) {
         const p = Math.min(100, Math.max(0, (scrollY / totalHeight) * 100));
-        setPercent(p);
+        bar.style.width = `${p}%`;
       }
     };
 
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        update();
+        rafId = null;
+      });
+    };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    update();
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   return (
     <div className="progress" aria-hidden="true">
-      <i id="progress" style={{ width: `${percent}%`, transform: "none" }} />
+      <i ref={barRef} id="progress" style={{ width: "0%", transform: "none" }} />
     </div>
   );
 };

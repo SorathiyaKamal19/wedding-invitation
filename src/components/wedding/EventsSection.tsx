@@ -1,18 +1,22 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { WeddingData } from "@/data/weddingData";
+import { WeddingData, WeddingEvent } from "@/data/weddingData";
 
 interface EventsSectionProps {
   data: WeddingData;
 }
 
 export const EventsSection: React.FC<EventsSectionProps> = ({ data }) => {
+  const sectionRef = useRef<HTMLElement | null>(null);
   const railRef = useRef<HTMLOListElement | null>(null);
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  // Animate the golden rail progress as the guest scrolls
+  // Animate the golden rail progress and reveal cards as the guest scrolls
   useEffect(() => {
-    const handleScroll = () => {
+    let rafId: number | null = null;
+
+    const update = () => {
       const rail = railRef.current;
       if (!rail) return;
       const rect = rail.getBoundingClientRect();
@@ -26,13 +30,77 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ data }) => {
       rail.style.setProperty("--prog", progress.toFixed(3));
     };
 
-    handleScroll();
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        update();
+        rafId = null;
+      });
+    };
+
+    update();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Header reveal observer
+    const secEl = sectionRef.current;
+    let secObs: IntersectionObserver | null = null;
+    if (secEl && typeof IntersectionObserver !== "undefined") {
+      secObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              secEl.classList.add("arrived");
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      secObs.observe(secEl);
+    }
+
+    // Scroll-triggered reveal observer for each ceremony card
+    let itemObs: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      itemObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in", "lit");
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+      );
+
+      itemRefs.current.forEach((el) => {
+        if (el) itemObs?.observe(el);
+      });
+    }
+
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handleScroll);
+      if (secObs && secEl) secObs.unobserve(secEl);
+      if (itemObs) itemObs.disconnect();
+    };
   }, []);
 
+  const getGoogleCalendarUrl = (event: WeddingEvent) => {
+    const [year, month, day] = event.date.split("-");
+    const [hour, min] = event.time.split(":");
+    const startDate = `${year}${month}${day}T${hour}${min}00`;
+    const endHour = String((parseInt(hour, 10) + 3) % 24).padStart(2, "0");
+    const endDate = `${year}${month}${day}T${endHour}${min}00`;
+
+    const title = encodeURIComponent(`Aarav & Ananya's Wedding: ${event.name}`);
+    const details = encodeURIComponent(`${event.note} | Dress code: ${event.dressCode}`);
+    const location = encodeURIComponent(`${event.venue}, ${event.address}`);
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
+  };
+
   return (
-    <section className="sec parch events" id="events">
+    <section ref={sectionRef} className="sec parch events" id="events">
       {/* Golden Corner Flourishes */}
       <img
         loading="lazy"
@@ -65,9 +133,14 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ data }) => {
         <h2 className="h2 reveal">The celebrations</h2>
 
         {/* Celebrations Timeline Rail */}
-        <ol ref={railRef} className="rail" id="rail" style={{ "--prog": "1" } as React.CSSProperties}>
-          {data.events.map((event) => (
-            <li key={event.id} className="ev in lit">
+        <ol ref={railRef} className="rail" id="rail" style={{ "--prog": "0" } as React.CSSProperties}>
+          {data.events.map((event, idx) => (
+            <li
+              key={event.id}
+              ref={(el) => { itemRefs.current[idx] = el; }}
+              className="ev"
+              style={{ "--ev-i": idx } as React.CSSProperties}
+            >
               {/* Flickering Diya Flame Node */}
               <span className="node" aria-hidden="true" />
 
@@ -100,14 +173,25 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ data }) => {
                       <dd>{event.note}</dd>
                     </div>
                   </dl>
-                  <a
-                    className="btn"
-                    href={event.maps}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span>Directions</span>
-                  </a>
+                  <div className="ev-actions" style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center", marginTop: "14px" }}>
+                    <a
+                      className="btn btn-sm"
+                      href={event.maps}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span>📍 Directions</span>
+                    </a>
+                    <a
+                      className="btn btn-sm btn-outline"
+                      href={getGoogleCalendarUrl(event)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Add to Google Calendar"
+                    >
+                      <span>📅 Calendar</span>
+                    </a>
+                  </div>
                 </div>
               </article>
             </li>

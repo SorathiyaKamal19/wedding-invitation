@@ -38,6 +38,28 @@ export default function WeddingPage() {
     if (typeof document !== "undefined") {
       document.body.classList.add("is-open");
     }
+
+    // Universal IntersectionObserver for all .reveal elements across the invitation
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in");
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      );
+
+      const targets = document.querySelectorAll(".reveal");
+      targets.forEach((el) => observer?.observe(el));
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+    };
   }, []);
 
   return (
